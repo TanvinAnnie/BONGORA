@@ -1,6 +1,7 @@
 import express, { Application } from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import authRoutes from "./routes/auth.routes";
 
 const app: Application = express();
 
@@ -22,5 +23,7 @@ app.get("/api/health", (_req, res) => {
     message: "BONGORA API is running!",
   });
 });
+
+app.use("/api/auth", authRoutes);
 
 export default app;
