@@ -62,3 +62,71 @@ export const getMySellerApplications = async (
 
   return applications;
 };
+
+
+import Store from "../models/Store";
+
+// Get Seller's Own Store
+export const getMyStore = async (userId: string) => {
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid user ID");
+  }
+
+  const store = await Store.findOne({
+    owner: userId,
+  });
+
+  if (!store) {
+    throw new Error("Store not found");
+  }
+
+  return store;
+};
+
+// Update Seller's Own Store
+export const updateMyStore = async (
+  userId: string,
+  data: {
+    storeName?: string;
+    description?: string;
+    contactPhone?: string;
+    businessAddress?: string;
+  }
+) => {
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    throw new Error("Invalid user ID");
+  }
+
+  const store = await Store.findOne({
+    owner: userId,
+  });
+
+  if (!store) {
+    throw new Error("Store not found");
+  }
+
+  if (store.status !== "active") {
+    throw new Error("Your store is suspended");
+  }
+
+  if (data.storeName !== undefined) {
+    store.storeName = data.storeName;
+  }
+
+  if (data.description !== undefined) {
+    store.description = data.description;
+  }
+
+  if (data.contactPhone !== undefined) {
+    store.contactPhone = data.contactPhone;
+  }
+
+  if (data.businessAddress !== undefined) {
+    store.businessAddress = data.businessAddress;
+  }
+
+  await store.save();
+
+  return store;
+};
+

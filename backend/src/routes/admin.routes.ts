@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authenticate } from "../middlewares/auth.middleware";
 import { authorizeRoles } from "../middlewares/role.middleware";
+import { approveSeller } from "../controllers/admin.controller";
 
 const router = Router();
 
@@ -19,6 +20,14 @@ router.get(
       },
     });
   }
+);
+
+// Approve Seller Application
+router.patch(
+  "/seller-applications/:applicationId/approve",
+  authenticate,
+  authorizeRoles("admin"),
+  approveSeller
 );
 
 export default router;
