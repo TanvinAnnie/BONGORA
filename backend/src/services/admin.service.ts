@@ -3,8 +3,9 @@ import mongoose from "mongoose";
 import SellerApplication from "../models/SellerApplication";
 import Store from "../models/Store";
 import User from "../models/User";
-
+import { SellerApplicationStatus } from "../models/SellerApplication";
 // Generate a unique store slug
+
 const generateStoreSlug = (storeName: string, applicationId: string) => {
   const baseSlug = storeName
     .toLowerCase()
@@ -119,4 +120,43 @@ export const approveSellerApplication = async (
   } finally {
     await session.endSession();
   }
+};
+
+// Get Seller Applications for Admin
+export const getSellerApplications = async (
+  status?: SellerApplicationStatus,
+  page: number = 1,
+  limit: number = 10
+) => {
+  const filter: {
+    status?: SellerApplicationStatus;
+  } = {};
+
+  if (status) {
+    filter.status = status;
+  }
+
+  const skip = (page - 1) * limit;
+
+  const [applications, total] = await Promise.all([
+    SellerApplication.find(filter)
+      .populate("user", "name email phone")
+      .populate("reviewedBy", "name email")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+
+    SellerApplication.countDocuments(filter),
+  ]);
+
+  return {
+    applications,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
