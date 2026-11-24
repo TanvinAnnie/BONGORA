@@ -4,6 +4,8 @@ import SellerApplication from "../models/SellerApplication";
 import Store from "../models/Store";
 import User from "../models/User";
 import { SellerApplicationStatus } from "../models/SellerApplication";
+import { StoreStatus } from "../models/Store";
+
 // Generate a unique store slug
 
 const generateStoreSlug = (storeName: string, applicationId: string) => {
@@ -206,3 +208,98 @@ export const rejectSellerApplication = async (
   };
 };
 
+
+
+// Get All Stores for Admin
+export const getAllStores = async (
+  status?: StoreStatus,
+  page: number = 1,
+  limit: number = 10
+) => {
+  const filter: {
+    status?: StoreStatus;
+  } = {};
+
+  if (status) {
+    filter.status = status;
+  }
+
+  const skip = (page - 1) * limit;
+
+  const [stores, total] = await Promise.all([
+    Store.find(filter)
+      .populate("owner", "name email phone role isActive")
+      .populate("application", "storeName status")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+
+    Store.countDocuments(filter),
+  ]);
+
+  return {
+    stores,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+};
+
+
+ // Suspend Store
+export const suspendStore = async (storeId: string) => {
+  if (!mongoose.Types.ObjectId.isValid(storeId)) {
+    throw new Error("Invalid store ID");
+  }
+
+  const store = await Store.findById(storeId);
+
+  if (!store) {
+    throw new Error("Store not found");
+  }
+
+  if (store.status === "suspended") {
+    throw new Error("Store is already suspended");
+  }
+
+  store.status = "suspended";
+  await store.save();
+
+  return {
+    id: store._id,
+    storeName: store.storeName,
+    slug: store.slug,
+    status: store.status,
+  };
+};
+
+// Reactivate Store
+export const reactivateStore = async (storeId: string) => {
+  if (!mongoose.Types.ObjectId.isValid(storeId)) {
+    throw new Error("Invalid store ID");
+  }
+
+  const store = await Store.findById(storeId);
+
+  if (!store) {
+    throw new Error("Store not found");
+  }
+
+  if (store.status === "active") {
+    throw new Error("Store is already active");
+  }
+
+  store.status = "active";
+  await store.save();
+
+  return {
+    id: store._id,
+    storeName: store.storeName,
+    slug: store.slug,
+    status: store.status,
+  };
+};

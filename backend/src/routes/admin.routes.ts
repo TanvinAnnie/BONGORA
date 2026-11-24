@@ -5,6 +5,9 @@ import {
   approveSeller,
   getSellerApplicationsList,
    rejectSeller,
+    getAllStoresList,
+     suspendStoreController,
+  reactivateStoreController,
 } from "../controllers/admin.controller";
 
 const router = Router();
@@ -47,5 +50,29 @@ router.patch(
   authenticate,
   authorizeRoles("admin"),
   rejectSeller
+);
+
+// Get All Stores
+router.get(
+  "/stores",
+  authenticate,
+  authorizeRoles("admin"),
+  getAllStoresList
+);
+
+// Suspend Store
+router.patch(
+  "/stores/:storeId/suspend",
+  authenticate,
+  authorizeRoles("admin"),
+  suspendStoreController
+);
+
+// Reactivate Store
+router.patch(
+  "/stores/:storeId/reactivate",
+  authenticate,
+  authorizeRoles("admin"),
+  reactivateStoreController
 );
 export default router;
