@@ -160,3 +160,49 @@ export const getSellerApplications = async (
     },
   };
 };
+
+
+// Reject Seller Application
+export const rejectSellerApplication = async (
+  applicationId: string,
+  adminId: string,
+  rejectionReason: string
+) => {
+  if (
+    !mongoose.Types.ObjectId.isValid(applicationId) ||
+    !mongoose.Types.ObjectId.isValid(adminId)
+  ) {
+    throw new Error("Invalid application or admin ID");
+  }
+
+  const reason = rejectionReason.trim();
+
+  if (!reason) {
+    throw new Error("Rejection reason is required");
+  }
+
+  const application = await SellerApplication.findOne({
+    _id: applicationId,
+    status: "pending",
+  });
+
+  if (!application) {
+    throw new Error("Pending seller application not found");
+  }
+
+  application.status = "rejected";
+  application.reviewedBy = new mongoose.Types.ObjectId(adminId);
+  application.reviewedAt = new Date();
+  application.rejectionReason = reason;
+
+  await application.save();
+
+  return {
+    id: application._id,
+    status: application.status,
+    rejectionReason: application.rejectionReason,
+    reviewedBy: application.reviewedBy,
+    reviewedAt: application.reviewedAt,
+  };
+};
+

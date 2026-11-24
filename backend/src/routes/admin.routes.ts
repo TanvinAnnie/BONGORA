@@ -4,6 +4,7 @@ import { authorizeRoles } from "../middlewares/role.middleware";
 import {
   approveSeller,
   getSellerApplicationsList,
+   rejectSeller,
 } from "../controllers/admin.controller";
 
 const router = Router();
@@ -39,5 +40,12 @@ router.get(
   authenticate,
   authorizeRoles("admin"),
   getSellerApplicationsList
+);
+// Reject Seller Application
+router.patch(
+  "/seller-applications/:applicationId/reject",
+  authenticate,
+  authorizeRoles("admin"),
+  rejectSeller
 );
 export default router;
