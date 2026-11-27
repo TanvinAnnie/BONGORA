@@ -115,4 +115,5 @@ router.delete(
   authorizeRoles("admin"),
   deleteCategoryController
 );
+
 export default router;

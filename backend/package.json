@@ -2,13 +2,12 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
-  
-"scripts": {
-  "dev": "tsx watch src/server.ts",
-  "build": "tsc",
-  "start": "node dist/server.js",
-  "seed:admin": "tsx src/seeds/admin.seed.ts"
-},
+  "scripts": {
+    "dev": "node init && tsx watch src/server.ts",
+    "build": "node init && tsc",
+    "start": "node init && node dist/server.js",
+    "seed:admin": "tsx src/seeds/admin.seed.ts"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
