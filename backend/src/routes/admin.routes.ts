@@ -10,6 +10,13 @@ import {
   reactivateStoreController,
 } from "../controllers/admin.controller";
 
+import {
+  createCategoryController,
+  getAllCategoriesController,
+  updateCategoryController,
+  deleteCategoryController,
+} from "../controllers/category.controller";
+
 const router = Router();
 
 // Admin Dashboard - Protected Route
@@ -74,5 +81,38 @@ router.patch(
   authenticate,
   authorizeRoles("admin"),
   reactivateStoreController
+);
+// Category Management
+
+// Create Category
+router.post(
+  "/categories",
+  authenticate,
+  authorizeRoles("admin"),
+  createCategoryController
+);
+
+// Get All Categories
+router.get(
+  "/categories",
+  authenticate,
+  authorizeRoles("admin"),
+  getAllCategoriesController
+);
+
+// Update Category
+router.patch(
+  "/categories/:categoryId",
+  authenticate,
+  authorizeRoles("admin"),
+  updateCategoryController
+);
+
+// Delete Category
+router.delete(
+  "/categories/:categoryId",
+  authenticate,
+  authorizeRoles("admin"),
+  deleteCategoryController
 );
 export default router;

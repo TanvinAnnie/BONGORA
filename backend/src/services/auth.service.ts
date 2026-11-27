@@ -37,13 +37,21 @@ export const registerUser = async (data: RegisterInput) => {
 };
 
 // User Login
+
 export const loginUser = async (
   email: string,
   password: string
 ) => {
+  console.log("LOGIN FUNCTION CALLED");
+  console.log("LOGIN EMAIL:", email.toLowerCase());
+
   const user = await User.findOne({
     email: email.toLowerCase(),
   }).select("+password");
+
+  console.log("USER FOUND:", Boolean(user));
+  console.log("USER ROLE:", user?.role);
+  console.log("USER ACTIVE:", user?.isActive);
 
   if (!user) {
     throw new Error("Invalid email or password");
@@ -57,6 +65,9 @@ export const loginUser = async (
     password,
     user.password
   );
+
+  console.log("PASSWORD MATCH:", isPasswordValid);
+  console.log("========== END LOGIN DEBUG ==========");
 
   if (!isPasswordValid) {
     throw new Error("Invalid email or password");
