@@ -156,11 +156,7 @@ export const updateProductController = async (
       return;
     }
 
-    const product = await updateProduct(
-      userId,
-      productId,
-      req.body
-    );
+    const product = await updateProduct(userId, productId, req.body);
 
     res.status(200).json({
       success: true,
@@ -172,7 +168,9 @@ export const updateProductController = async (
       error instanceof Error ? error.message : "Failed to update product";
 
     const statusCode =
-      message === "Invalid user ID" || message === "Invalid product ID"
+      message === "Invalid user ID" ||
+      message === "Invalid product ID" ||
+      message === "Add at least one product variant before publishing"
         ? 400
         : message === "Store not found" ||
           message === "Product not found" ||
@@ -260,7 +258,9 @@ export const publishProductController = async (
       error instanceof Error ? error.message : "Failed to publish product";
 
     const statusCode =
-      message === "Invalid user ID" || message === "Invalid product ID"
+      message === "Invalid user ID" ||
+      message === "Invalid product ID" ||
+      message === "Add at least one product variant before publishing"
         ? 400
         : message === "Store not found" ||
           message === "Product not found" ||

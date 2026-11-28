@@ -9,6 +9,29 @@ import {
   UpdateProductInput,
 } from "../validations/product.validation";
 
+// Check Whether Product Can Be Published
+const validateProductForPublishing = async (
+  productId: mongoose.Types.ObjectId,
+  categoryId: mongoose.Types.ObjectId
+) => {
+  const variantCount = await ProductVariant.countDocuments({
+    product: productId,
+  });
+
+  if (variantCount === 0) {
+    throw new Error("Add at least one product variant before publishing");
+  }
+
+  const category = await Category.findOne({
+    _id: categoryId,
+    isActive: true,
+  });
+
+  if (!category) {
+    throw new Error("Product category is inactive");
+  }
+};
+
 // Create Product
 export const createProduct = async (
   userId: string,
@@ -39,6 +62,8 @@ export const createProduct = async (
     throw new Error("Category not found or inactive");
   }
 
+  // Every new product starts as draft.
+  // Seller must add variants before publishing.
   const product = await Product.create({
     store: store._id,
     category: data.category,
@@ -46,7 +71,7 @@ export const createProduct = async (
     description: data.description,
     price: data.price,
     image: data.image,
-    status: data.status ?? "draft",
+    status: "draft",
   });
 
   return product;
@@ -161,6 +186,8 @@ export const updateProduct = async (
     throw new Error("Product not found");
   }
 
+  let categoryId = product.category;
+
   if (data.category !== undefined) {
     const category = await Category.findOne({
       _id: data.category,
@@ -171,15 +198,18 @@ export const updateProduct = async (
       throw new Error("Category not found or inactive");
     }
 
-    product.category = new mongoose.Types.ObjectId(
-      data.category
-    );
+    categoryId = new mongoose.Types.ObjectId(data.category);
   }
 
   if (data.status === "published") {
     if (store.status !== "active") {
       throw new Error("Your store is suspended");
     }
+
+    await validateProductForPublishing(
+      product._id,
+      categoryId
+    );
   }
 
   if (data.name !== undefined) {
@@ -196,6 +226,10 @@ export const updateProduct = async (
 
   if (data.image !== undefined) {
     product.image = data.image;
+  }
+
+  if (data.category !== undefined) {
+    product.category = categoryId;
   }
 
   if (data.status !== undefined) {
@@ -283,14 +317,10 @@ export const publishProduct = async (
     throw new Error("Product not found");
   }
 
-  const category = await Category.findOne({
-    _id: product.category,
-    isActive: true,
-  });
-
-  if (!category) {
-    throw new Error("Product category is inactive");
-  }
+  await validateProductForPublishing(
+    product._id,
+    product.category
+  );
 
   product.status = "published";
 

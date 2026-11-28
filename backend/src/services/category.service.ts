@@ -1,6 +1,7 @@
 
 import mongoose from "mongoose";
 import Category from "../models/Category";
+import Product from "../models/Product";
 
 // Generate Category Slug
 const generateCategorySlug = (name: string): string => {
@@ -146,6 +147,15 @@ export const deleteCategory = async (categoryId: string) => {
 
   if (!category) {
     throw new Error("Category not found");
+  }
+
+  // Prevent deletion if products are using this category
+  const productExists = await Product.exists({
+    category: category._id,
+  });
+
+  if (productExists) {
+    throw new Error("Category is being used by products");
   }
 
   await Category.deleteOne({

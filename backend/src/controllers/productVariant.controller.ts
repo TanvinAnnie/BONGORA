@@ -203,6 +203,10 @@ export const deleteProductVariantController = async (
         : message === "Store not found" ||
           message === "Product variant not found"
         ? 404
+        : message.startsWith(
+            "Cannot delete the last variant of a published product"
+          )
+        ? 409
         : 500;
 
     res.status(statusCode).json({

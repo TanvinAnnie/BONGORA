@@ -276,6 +276,8 @@ export const deleteCategoryController = async (
         ? 400
         : message === "Category not found"
         ? 404
+        : message === "Category is being used by products"
+        ? 409
         : 500;
 
     res.status(statusCode).json({

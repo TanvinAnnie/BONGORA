@@ -185,6 +185,19 @@ export const deleteProductVariant = async (
     throw new Error("Product variant not found");
   }
 
+  // Prevent deleting the last variant of a published product
+  if (product.status === "published") {
+    const variantCount = await ProductVariant.countDocuments({
+      product: product._id,
+    });
+
+    if (variantCount <= 1) {
+      throw new Error(
+        "Cannot delete the last variant of a published product. Unpublish the product first."
+      );
+    }
+  }
+
   await variant.deleteOne();
 
   return {
